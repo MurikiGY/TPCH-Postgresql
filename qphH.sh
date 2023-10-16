@@ -1,6 +1,15 @@
 #!/bin/bash
 
-bash scripts/tcl/postgres/tproch/pg_tproch.sh > out.tmp
+RUN_DIR='runs'
+mkdir -p "$RUN_DIR"
+LAST_RUN=$(ls "$RUN_DIR" | sed -r 's/run(.*)/\1/' | sort -rnu | head -1)
+RUN_NUM=$(bc<<<"$LAST_RUN + 1")
+# echo 'running...'
+# ./qphH.sh > "${RUN_DIR}/run${RUN_NUM}"
+OUT="${RUN_DIR}/run${RUN_NUM}"
+touch $OUT && cat $OUT > $OUT
+
+bash scripts/tcl/postgres/tproch/pg_tproch.sh | tee out.tmp
 
 SF=1
 S=1
@@ -14,38 +23,37 @@ OLD_SALES_TIME=$(echo "$DATA" | tail -n 1 | cut -d' ' -f 7)
 TOTAL_TIME=$(echo "scale=3; $QUERY_TIME+$NEW_SALES_TIME+$OLD_SALES_TIME" | bc)
 GEO_MEAN=$(echo "$DATA" | tail -n 2 | head -n 1 | cut -d' ' -f 11)
 
-echo "ORIGINAL"
-echo "$DATA"
-echo "QUERIES"
-echo "$QUERIES"
+echo "ORIGINAL" | tee -a "$OUT"
+echo "$DATA" | tee -a "$OUT"
+echo "QUERIES" | tee -a "$OUT"
+echo "$QUERIES" | tee -a "$OUT"
 
-echo "TOTAL QUERY TIME"
-echo "$QUERY_TIME"
-echo "NEW SALES TIME"
-echo "$NEW_SALES_TIME"
-echo "OLD SALES TIME"
-echo "$OLD_SALES_TIME"
-echo "TOTAL TIME"
-echo "$TOTAL_TIME"
-echo "GEO MEAN"
-echo "$GEO_MEAN"
+echo "TOTAL QUERY TIME" | tee -a "$OUT"
+echo "$QUERY_TIME" | tee -a "$OUT"
+echo "NEW SALES TIME" | tee -a "$OUT"
+echo "$NEW_SALES_TIME" | tee -a "$OUT"
+echo "OLD SALES TIME" | tee -a "$OUT"
+echo "$OLD_SALES_TIME" | tee -a "$OUT"
+echo "TOTAL TIME" | tee -a "$OUT"
+echo "$TOTAL_TIME" | tee -a "$OUT"
+echo "GEO MEAN" | tee -a "$OUT"
+echo "$GEO_MEAN" | tee -a "$OUT"
 
 # POWER
 REFRESH_GEO_MEAN=$(echo "scale=3; sqrt($NEW_SALES_TIME*$OLD_SALES_TIME)" | bc -l)
 POWER=$(echo "scale=3; (3600*$SF)/($GEO_MEAN*$REFRESH_GEO_MEAN)" | bc)
 
-echo "POWER METRIC"
-echo "$POWER"
+echo "POWER METRIC" | tee -a "$OUT"
+echo "$POWER" | tee -a "$OUT"
 
 # THROUGHPUT
 THROUGHPUT=$(echo "scale=3; ($S*22*3600)/($TOTAL_TIME*$SF)" | bc)
 
-echo "THROUGHPUT"
-echo "$THROUGHPUT"
+echo "THROUGHPUT" | tee -a "$OUT"
+echo "$THROUGHPUT" | tee -a "$OUT"
 
 # QPHH
 QPHH=$(echo "scale=3; sqrt($POWER*$THROUGHPUT)" | bc -l)
 
-echo "QPHH"
-echo "$QPHH"
-
+echo "QPHH" | tee -a "$OUT"
+echo "$QPHH" | tee -a "$OUT"
