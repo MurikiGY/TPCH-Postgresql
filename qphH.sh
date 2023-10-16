@@ -31,7 +31,7 @@ echo "GEO MEAN"
 echo "$GEO_MEAN"
 
 # POWER
-REFRESH_GEO_MEAN=$(echo "scale=3; sqrt($NEW_SALES*$OLD_SALES)" | bc -l)
+REFRESH_GEO_MEAN=$(echo "scale=3; sqrt($NEW_SALES_TIME*$OLD_SALES_TIME)" | bc -l)
 POWER=$(echo "scale=3; (3600*$SF)/($GEO_MEAN*$REFRESH_GEO_MEAN)" | bc)
 
 echo "POWER METRIC"
